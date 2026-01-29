@@ -1,9 +1,20 @@
-import 'dotenv/config';
-import { runSparScraper } from './scrapers/spar/sparScraper.js';
+import { checkDb } from './db/health.js';
+import { runSparScraper } from './scrapers/spar/index.js';
 
-runSparScraper()
-    .then(() => process.exit(0))
-    .catch(err => {
-        console.error(err);
-        process.exit(1);
-    });
+async function main() {
+    console.log('🚀 Starting scraper');
+
+    await checkDb();
+    console.log('🗄️ DB connected');
+
+    await runSparScraper();
+
+    console.log('✅ Done');
+    process.exit(0);
+}
+
+main().catch(err => {
+    console.error('❌ Fatal error');
+    console.error(err);
+    process.exit(1);
+});

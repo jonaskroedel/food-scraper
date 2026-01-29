@@ -95,15 +95,12 @@ async function run() {
                 page: pageNr,
 
                 // optional, aber fürs Debuggen extrem wertvoll
-                rawPayload: (() => {
-                    const clone = structuredClone(h);
-
-                    if (clone.masterValues?.availableStores) {
-                        delete clone.masterValues.availableStores;
-                    }
-
-                    return clone;
-                })(),
+                rawPayload: {
+                    fetchedFrom: 'spar_navigation_api',
+                    fetchedPage: pageNr,
+                    fetchedAt: new Date().toISOString(),
+                    data: structuredClone(h),
+                },
 
             });
         }
