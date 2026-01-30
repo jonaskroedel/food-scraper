@@ -19,7 +19,7 @@ function renderStatus(
     );
 }
 
-const BATCH_SIZE = 250;
+const BATCH_SIZE = 50;
 
 export async function runSparScraper() {
     console.log('▶ SPAR: streaming import');

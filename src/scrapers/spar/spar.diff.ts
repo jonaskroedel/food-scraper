@@ -61,6 +61,15 @@ export function diffOffer(
         });
     }
 
+
+    if (existing.product_image_url !== incoming.imageUrl) {
+        fields.push({
+            field: 'product_image_url',
+            before: existing.product_image_url,
+            after: incoming.imageUrl,
+        });
+    }
+
     return {
         changed: fields.length > 0,
         fields,

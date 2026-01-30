@@ -48,10 +48,11 @@ export function normalizeSparHit(hit: any): NormalizedProduct {
         pricePerBase,
 
         productUrl: `https://www.spar.at/produktwelt/${mv.slug}`,
+
         imageUrl: mv?.productImage_assetUrl
             ? mv.productImage_assetUrl
                 .replace('{size}', '500')
-                .replace('{ext}', 'jpg')
+                .replace('{ext}', 'png')
             : null,
 
         badges: badgeNames,

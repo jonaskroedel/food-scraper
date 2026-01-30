@@ -1,5 +1,5 @@
 --
--- PostgreSQL database dump
+-- PostgreSQL database dumps
 --
 
 \restrict AKeaBVvAo1NdtBuiDDCPye8A3CNed2lt9cTDhcJAb0tkPy6ZkRLdti5dVcPKmyd
@@ -556,7 +556,7 @@ ALTER TABLE ONLY "public"."store"
 
 
 --
--- PostgreSQL database dump complete
+-- PostgreSQL database dumps complete
 --
 
 \unrestrict AKeaBVvAo1NdtBuiDDCPye8A3CNed2lt9cTDhcJAb0tkPy6ZkRLdti5dVcPKmyd

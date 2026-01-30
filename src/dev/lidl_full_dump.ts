@@ -31,7 +31,7 @@ async function fetchPage(offset: number, fetchSize = 12) {
 }
 
 async function run() {
-    console.log("▶ Starting LIDL raw dump…");
+    console.log("▶ Starting LIDL raw dumps…");
 
     const allItems: any[] = [];
     let offset = 0;

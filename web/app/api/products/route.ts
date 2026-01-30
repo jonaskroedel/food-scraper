@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { pool } from '@/lib/db'
+// Wir importieren 'db' und nennen es für diese Datei 'pool'
+import { db as pool } from '@db'
 import { PRODUCTS_PAGE } from './queries'
 
 export async function GET(req: Request) {
@@ -12,6 +13,7 @@ export async function GET(req: Request) {
     )
 
     try {
+        // 'pool' bezieht sich jetzt korrekt auf den export 'db'
         const { rows } = await pool.query(PRODUCTS_PAGE, [
             cursor,
             limit,

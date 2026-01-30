@@ -17,7 +17,8 @@ export const PRODUCTS_PAGE = `
                         'price', pr.price,
                         'currency', pr.currency,
                         'base_price', pr.base_price,
-                        'base_unit', pr.base_unit
+                        'base_unit', pr.base_unit,
+                        'size_text', o.size_text
                 )
                     ORDER BY pr.price
         ) FILTER (WHERE pr.price IS NOT NULL) AS offers,

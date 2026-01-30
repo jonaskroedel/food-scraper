@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+    /* Tailwind v4 erkennt diese Variablen automatisch als Klassen wie 'text-red-500' oder 'bg-gray-200' */
+    --color-red-500: #ef4444;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-500: #6b7280;
+    --color-white: #ffffff;
+    --color-black: #000000;
+
+    /* Deine Custom App-Tokens */
+    --color-app-bg: #f5f7f6;
+    --color-app-card: #ffffff;
+    --color-app-border: #e5e7eb;
+    --color-app-text-main: #111827;
+    --color-app-text-muted: #6b7280;
+    --color-app-accent: #16a34a;
+}
+
+/* -------- Global base styles -------- */
+
+@layer base {
+    html,
+    body {
+        height: 100%;
+    }
+
+    body {
+        /* Tailwind v4 erlaubt die Nutzung der Theme-Variablen direkt per CSS-Variable */
+        background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+        color: var(--color-app-text-main);
+        @apply antialiased; /* Optional für bessere Schriftdarstellung */
+    }
+
+    /* Images */
+    img {
+        user-select: none;
+    }
+
+    /* Links */
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+}
+
+/* Optional scrollbar polish - Keine speziellen Tailwind Änderungen nötig */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-gray-300);
+    border-radius: 9999px;
+}

@@ -1,11 +1,13 @@
 {
   "name": "food-scraper",
   "version": "0.1.0",
+  "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "dev:web": "npx next dev web",
+    "build:web": "npx next build web",
+    "start:web": "npx next start web",
+    "dev:scraper": "npx tsx src/index.ts"
   },
   "dependencies": {
     "cheerio": "^1.2.0",

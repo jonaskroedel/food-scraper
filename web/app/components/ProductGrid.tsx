@@ -4,14 +4,13 @@ export function ProductGrid() {
     return (
         <div
             className="
-    grid
-    gap-8
-    justify-center
-    [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]
-  "
+        grid
+        gap-6 md:gap-8
+        grid-cols-[repeat(auto-fill,minmax(260px,1fr))]
+        items-stretch
+      "
         >
-
-        <InfiniteProductList />
+            <InfiniteProductList />
         </div>
     )
 }

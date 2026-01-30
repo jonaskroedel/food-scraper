@@ -1,67 +1,22 @@
 # ===============================
-# Node / TypeScript
+# Next.js (WICHTIG!)
 # ===============================
-node_modules/
-dist/
-build/
-*.tsbuildinfo
+.next/
+out/
+next-env.d.ts
 
 # ===============================
-# Environment / Secrets
+# Turbopack & Cache
 # ===============================
-.env
-.env.*
-!.env.example
-
-# ===============================
-# Database / Runtime Artifacts
-# ===============================
-dumps/.spar_page_checkpoint
-*.sqlite
-*.db
-
-# ===============================
-# Dumps / Scraper Outputs
-# ===============================
-*_raw_dump.json
-*_full_dump.json
-spar_raw_dump.json
-billa_raw_dump.json
-hofer_roksh_raw_dump.json
-lidl_raw_dump_food.json
-
-# falls du künftig mehr Dumps hast
-/dumps/
-*.ndjson
-
-# ===============================
-# Logs / Temp
-# ===============================
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# ===============================
-# Playwright
-# ===============================
-.playwright/
-playwright-report/
-test-results/
-
-# ===============================
-# OS / Editor
-# ===============================
-.DS_Store
-Thumbs.db
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# ===============================
-# Misc
-# ===============================
-coverage/
+.turbo/
 .cache/
+
+# ===============================
+# TypeScript & IDE
+# ===============================
+# WebStorm (schon drin, aber .idea/ ist gut)
+.idea/
+# Falls du VS Code nutzt:
+.vscode/
+# Die automatisch generierte tsconfig in /web (da sie nur erbt)
+web/tsconfig.json
