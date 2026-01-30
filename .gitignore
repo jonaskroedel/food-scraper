@@ -1,9 +1,27 @@
 # ===============================
-# Next.js (WICHTIG!)
+# Abhängigkeiten (DAS FEHLT!)
+# ===============================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ===============================
+# Next.js
 # ===============================
 .next/
 out/
 next-env.d.ts
+
+# ===============================
+# Environment Variables (WICHTIG für Sicherheit!)
+# ===============================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # ===============================
 # Turbopack & Cache
@@ -12,11 +30,9 @@ next-env.d.ts
 .cache/
 
 # ===============================
-# TypeScript & IDE
+# IDEs & System
 # ===============================
-# WebStorm (schon drin, aber .idea/ ist gut)
 .idea/
-# Falls du VS Code nutzt:
 .vscode/
-# Die automatisch generierte tsconfig in /web (da sie nur erbt)
-web/tsconfig.json
+.DS_Store
+*.log

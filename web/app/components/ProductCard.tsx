@@ -18,14 +18,21 @@ export function ProductCard({ product }: { product: Product }) {
             className={CARD_STYLES}
         >
             {/* IMAGE SLOT mit Badge-Overlay */}
-            <div className="relative h-44 w-full bg-gray-50 border-b rounded-t-xl overflow-hidden">
+            <div className="relative h-44 w-full bg-gray-50 border-b rounded-t-xl overflow-hidden flex items-center justify-center">
                 {product.image_url ? (
-                    <img src={product.image_url} alt={product.global_name} className="..." />
+                    <img
+                        src={product.image_url}
+                        alt={product.global_name}
+                        className="h-full w-full object-contain p-3"
+                    />
                 ) : (
-                    <div className="...">Kein Bild</div>
+                    <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
+                        Kein Bild
+                    </div>
                 )}
 
-                {/* NEU: Badges anzeigen (Bio, etc.)  */}
+
+            {/* NEU: Badges anzeigen (Bio, etc.)  */}
                 <div className="absolute top-2 right-2 flex flex-col gap-1">
                     {product.badges?.map(badge => (
                         <img key={badge.id} src={badge.image_url} title={badge.name} className="h-6 w-6 object-contain bg-white rounded-full shadow-sm p-1" />

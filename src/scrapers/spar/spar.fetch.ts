@@ -1,88 +1,57 @@
 import { chromium } from 'playwright';
-import { sleep } from '../../utils/sleep.js';
 import { SPAR_BASE_URL, COMMON_PARAMS } from './spar.config.js';
-import fs from 'fs';
+import { sleep } from '../../utils/sleep.js';
 
-const CHECKPOINT_FILE = 'dumps/.spar_page_checkpoint';
-
-function loadCheckpoint(): number {
-    if (!fs.existsSync(CHECKPOINT_FILE)) return 1;
-    return Number(fs.readFileSync(CHECKPOINT_FILE, 'utf-8')) || 1;
-}
-
-function saveCheckpoint(page: number) {
-    fs.writeFileSync(CHECKPOINT_FILE, String(page));
-}
-
-
-export async function* streamSparProducts() {
+export async function* streamSparProductsParallel() {
     const browser = await chromium.launch({ headless: true });
-
-    let context = await browser.newContext({
-        locale: 'de-DE',
-        userAgent:
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
-            'AppleWebKit/537.36 (KHTML, like Gecko) ' +
-            'Chrome/143.0.0.0 Safari/537.36',
+    const context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     });
+    const page = await context.newPage();
 
-    let page = await context.newPage();
-    await page.goto('https://www.spar.at/', { waitUntil: 'domcontentloaded' });
-    await sleep(1500);
+    console.log('🔑 Initialisiere SPAR Browser-Session...');
+    await page.goto('https://www.spar.at/produktauswahl', { waitUntil: 'domcontentloaded' });
+    await sleep(2000);
 
-    let pageNr = loadCheckpoint();
-    console.log(`🔁 Resuming SPAR scrape at page ${pageNr}`);
+    let pageNr = 1;
+    let hasMore = true;
+    const CHUNK_SIZE = 6;
 
-    while (true) {
-        const url = `${SPAR_BASE_URL}${COMMON_PARAMS}&page=${pageNr}`;
+    while (hasMore) {
+        console.log(`🌐 Lade Batch ab Seite ${pageNr}...`);
 
-        let result;
-        try {
-            result = await page.evaluate(async (u: string) => {
-                const res = await fetch(u, {
-                    credentials: 'include',
-                    headers: { accept: 'application/json' },
-                });
-                return { status: res.status, json: await res.json() };
-            }, url);
-        } catch {
-            console.warn(`⚠️ Fetch failed on page ${pageNr}, restarting session…`);
+        const urls = Array.from({ length: CHUNK_SIZE }).map((_, i) =>
+            `${SPAR_BASE_URL}${COMMON_PARAMS}&page=${pageNr + i}`
+        );
 
-            await page.close();
-            await context.close();
+        // Wir nutzen new Function(), um sicherzustellen, dass tsx den Code nicht transformiert
+        const results = await page.evaluate(async (targetUrls) => {
+            const fetcher = new Function('url', `
+                return fetch(url).then(r => {
+                    if (!r.ok) return null;
+                    return r.json();
+                }).catch(() => null);
+            `);
 
-            context = await browser.newContext({
-                locale: 'de-DE',
-                userAgent:
-                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
-                    'AppleWebKit/537.36 (KHTML, like Gecko) ' +
-                    'Chrome/143.0.0.0 Safari/537.36',
-            });
+            return await Promise.all(targetUrls.map(u => fetcher(u)));
+        }, urls);
 
-            page = await context.newPage();
-            await page.goto('https://www.spar.at/', { waitUntil: 'domcontentloaded' });
-            await sleep(1500);
-
-            continue; // gleiche Seite erneut
+        let foundInChunk = 0;
+        for (const data of results) {
+            const hits = (data as any)?.hits ?? [];
+            if (hits.length > 0) {
+                foundInChunk += hits.length;
+                for (const hit of hits) yield hit;
+            }
         }
 
-        if (result.status !== 200) {
-            console.warn(`⚠️ HTTP ${result.status} on page ${pageNr}, retrying…`);
-            await sleep(2000);
-            continue;
+        if (foundInChunk === 0) {
+            console.log('🏁 Keine weiteren Produkte gefunden.');
+            hasMore = false;
+        } else {
+            pageNr += CHUNK_SIZE;
+            await sleep(500);
         }
-
-        const hits = result.json?.hits ?? [];
-        if (hits.length === 0) break;
-
-        for (const hit of hits) {
-            yield hit;
-        }
-
-        saveCheckpoint(pageNr);
-        pageNr++;
-
-        await sleep(150);
     }
 
     await browser.close();

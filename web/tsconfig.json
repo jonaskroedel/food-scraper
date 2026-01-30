@@ -1,3 +1,18 @@
 {
-  "extends": "../tsconfig.json"
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@db": ["../src/db.ts"],
+      "@types/*": ["../src/types/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "../src/**/*.ts" // Wichtig, damit er die Typen von oben mitnimmt
+  ]
 }
