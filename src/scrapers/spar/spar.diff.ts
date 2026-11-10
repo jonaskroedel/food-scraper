@@ -1,4 +1,4 @@
-import { NormalizedProduct } from './spar.types.js';
+﻿import { NormalizedProduct } from './spar.types';
 
 function normalizeValue(v: any): string | null {
     if (v === null || v === undefined) return null;

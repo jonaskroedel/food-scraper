@@ -5,7 +5,7 @@
     "paths": {
       "@/*": ["./*"],
       "@db": ["../src/db.ts"],
-      "@types/*": ["../src/types/*"]
+      "@custom-types/*": ["../src/types/*"]
     }
   },
   "include": [
@@ -13,6 +13,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "../src/**/*.ts" // Wichtig, damit er die Typen von oben mitnimmt
+    "../src/**/*.ts"
   ]
 }

@@ -17,8 +17,7 @@
     "paths": {
       "@/*": ["web/*"],
       "@db": ["src/db.ts"],
-      "@types/product": ["src/types/product.ts"],
-      "@types/rawProduct": ["src/types/rawProduct.ts"]
+      "@custom-types/*": ["src/types/*"]
     },
     "plugins": [
       {

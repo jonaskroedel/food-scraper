@@ -7,7 +7,16 @@
     "dev:web": "npx next dev web --webpack",
     "build:web": "npx next build web",
     "start:web": "npx next start web",
-    "dev:scraper": "npx tsx src/index.ts"
+    "dev:scraper": "npx tsx src/index.ts",
+    "dev:scraper:all": "npx tsx src/index.ts --all",
+    "dev:scraper:billa": "npx tsx src/index.ts --retailer=billa",
+    "dev:scraper:hofer": "npx tsx src/index.ts --retailer=hofer",
+    "dev:scraper:lidl": "npx tsx src/index.ts --retailer=lidl",
+    "dev:scraper:spar": "npx tsx src/index.ts --retailer=spar",
+    "db:migrate": "npx tsx src/db/migrate.ts",
+    "db:seed": "npx tsx src/db/seed.ts",
+    "test": "npx tsx src/test/unit.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",

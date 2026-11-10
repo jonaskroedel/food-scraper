@@ -1,34 +1,76 @@
-import { NextResponse } from 'next/server'
-// Wir importieren 'db' und nennen es für diese Datei 'pool'
-import { db as pool } from '@db'
-import { PRODUCTS_PAGE } from './queries'
+import { NextResponse } from 'next/server';
+import { db as pool } from '@db';
+import { buildProductsQuery } from './queries';
+import { queryFallbackProducts } from '../../../lib/dumpFallback';
+import { isDbAvailable, recordDbFailure, recordDbSuccess } from '../../../../src/db/health';
 
 export async function GET(req: Request) {
-    const { searchParams } = new URL(req.url)
+    const { searchParams } = new URL(req.url);
 
-    const cursor = searchParams.get('cursor')
-    const limit = Math.min(
-        Number(searchParams.get('limit') ?? 30),
-        100
-    )
+    const cursor = searchParams.get('cursor');
+    const offset = parseInt(searchParams.get('offset') ?? '0', 10);
+    const limit = Math.min(Number(searchParams.get('limit') ?? 30), 100);
+    const q = searchParams.get('q');
+    const retailer = searchParams.get('retailer');
+    const bio = searchParams.get('bio') === 'true';
+    const sort = searchParams.get('sort') as any;
+
+    // Fast-path: If DB is known to be offline or unreachable, serve from local snapshot instantly
+    if (!isDbAvailable()) {
+        const fallbackResult = queryFallbackProducts({
+            q,
+            retailer,
+            bio,
+            sort,
+            limit,
+            offset,
+        });
+
+        return NextResponse.json({
+            items: fallbackResult.items,
+            nextOffset: fallbackResult.nextOffset,
+            total: fallbackResult.total,
+            isFallback: true,
+        });
+    }
 
     try {
-        // 'pool' bezieht sich jetzt korrekt auf den export 'db'
-        const { rows } = await pool.query(PRODUCTS_PAGE, [
+        const { sql, values } = buildProductsQuery({
             cursor,
             limit,
-        ])
+            search: q,
+            retailer,
+            onlyBio: bio,
+            sortBy: sort,
+        });
+
+        const { rows } = await pool.query(sql, values);
+        recordDbSuccess();
 
         return NextResponse.json({
             items: rows,
             nextCursor: rows.at(-1)?.id ?? null,
-        })
-    } catch (err) {
-        console.error('API /api/products failed:', err)
+            isFallback: false,
+        });
+    } catch (err: any) {
+        // Record failure so next requests during cooldown don't wait on connection timeout
+        recordDbFailure(err.message);
+        console.warn('⚠️ Database query failed, falling back to local dataset:', err.message);
 
-        return NextResponse.json(
-            { error: 'internal_error' },
-            { status: 500 }
-        )
+        const fallbackResult = queryFallbackProducts({
+            q,
+            retailer,
+            bio,
+            sort,
+            limit,
+            offset,
+        });
+
+        return NextResponse.json({
+            items: fallbackResult.items,
+            nextOffset: fallbackResult.nextOffset,
+            total: fallbackResult.total,
+            isFallback: true,
+        });
     }
 }

@@ -1,58 +1,54 @@
-import { chromium } from 'playwright';
-import { SPAR_BASE_URL, COMMON_PARAMS } from './spar.config.js';
-import { sleep } from '../../utils/sleep.js';
+import { buildSparUrl, SPAR_CATEGORIES } from './spar.config';
+import { fetchJson } from '../../utils/http';
+import { sleep } from '../../utils/sleep';
+import { logger } from '../../utils/logger';
 
-export async function* streamSparProductsParallel() {
-    const browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext({
-        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    });
-    const page = await context.newPage();
+export interface SparStreamOptions {
+    maxPages?: number;
+    startPage?: number;
+    categories?: string[];
+    delayMs?: number;
+}
 
-    console.log('🔑 Initialisiere SPAR Browser-Session...');
-    await page.goto('https://www.spar.at/produktauswahl', { waitUntil: 'domcontentloaded' });
-    await sleep(2000);
+export async function* streamSparProducts(options: SparStreamOptions | number = 0) {
+    const opts: SparStreamOptions = typeof options === 'number' ? { maxPages: options } : options;
+    const limitPages = opts.maxPages && opts.maxPages > 0 ? opts.maxPages : Infinity;
+    const startPage = opts.startPage && opts.startPage > 0 ? opts.startPage : 1;
+    const categories = opts.categories ?? ['lebensmittel'];
+    const delayMs = opts.delayMs ?? 350;
 
-    let pageNr = 1;
-    let hasMore = true;
-    const CHUNK_SIZE = 6;
+    for (const category of categories) {
+        let page = startPage;
+        let fetchedPages = 0;
+        let hasMore = true;
 
-    while (hasMore) {
-        console.log(`🌐 Lade Batch ab Seite ${pageNr}...`);
+        while (hasMore && fetchedPages < limitPages) {
+            const url = buildSparUrl(page, category);
 
-        const urls = Array.from({ length: CHUNK_SIZE }).map((_, i) =>
-            `${SPAR_BASE_URL}${COMMON_PARAMS}&page=${pageNr + i}`
-        );
+            try {
+                const data = await fetchJson<any>(url, {
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                });
 
-        // Wir nutzen new Function(), um sicherzustellen, dass tsx den Code nicht transformiert
-        const results = await page.evaluate(async (targetUrls) => {
-            const fetcher = new Function('url', `
-                return fetch(url).then(r => {
-                    if (!r.ok) return null;
-                    return r.json();
-                }).catch(() => null);
-            `);
+                const hits = data?.hits ?? [];
+                if (!hits.length) {
+                    hasMore = false;
+                    break;
+                }
 
-            return await Promise.all(targetUrls.map(u => fetcher(u)));
-        }, urls);
+                for (const hit of hits) {
+                    yield hit;
+                }
 
-        let foundInChunk = 0;
-        for (const data of results) {
-            const hits = (data as any)?.hits ?? [];
-            if (hits.length > 0) {
-                foundInChunk += hits.length;
-                for (const hit of hits) yield hit;
+                page++;
+                fetchedPages++;
+                await sleep(delayMs);
+            } catch (err: any) {
+                logger.warn(`SPAR fetch error for category ${category} page ${page}: ${err.message}`);
+                break;
             }
         }
-
-        if (foundInChunk === 0) {
-            console.log('🏁 Keine weiteren Produkte gefunden.');
-            hasMore = false;
-        } else {
-            pageNr += CHUNK_SIZE;
-            await sleep(500);
-        }
     }
-
-    await browser.close();
 }

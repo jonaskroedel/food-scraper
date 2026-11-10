@@ -11,8 +11,10 @@ yarn-error.log*
 # Next.js
 # ===============================
 .next/
+web/.next/
 out/
 next-env.d.ts
+tsconfig.tsbuildinfo
 
 # ===============================
 # Environment Variables (WICHTIG für Sicherheit!)

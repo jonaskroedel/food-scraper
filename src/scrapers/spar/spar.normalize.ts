@@ -1,5 +1,5 @@
-import { parseSize } from '../../utils/units.js';
-import { NormalizedProduct } from './spar.types.js';
+﻿import { parseSize } from '../../utils/units';
+import { NormalizedProduct } from './spar.types';
 
 export function normalizeSparHit(hit: any): NormalizedProduct {
     const mv = hit.masterValues;
